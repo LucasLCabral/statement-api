@@ -1,46 +1,48 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
-	"time"
 
+	"github.com/LucasLCabral/statement-api/internal/handlers"
 	"github.com/LucasLCabral/statement-api/internal/models"
+	"github.com/LucasLCabral/statement-api/internal/repositories"
+	"github.com/LucasLCabral/statement-api/internal/usecases"
 	"github.com/gorilla/mux"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 var db *gorm.DB
+var repo repositories.TransactionRepositoryInterface
+var usecase usecases.TransactionUsecaseInterface
+var handler handlers.TransactionHandler
 
-// Inicializar database
 func initDB() {
 	dsn := "host=localhost user=statement_user password=statement_pass dbname=statement_db port=5432 sslmode=disable"
 	var err error
 	db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Fatal("Falha ao conectar com database:", err)
+		log.Fatal("Failed to connect to database:", err)
 	}
 
-	// Auto-migrate
 	err = db.AutoMigrate(&models.TransactionEvent{})
 	if err != nil {
-		log.Fatal("Falha na migration:", err)
+		log.Fatal("Failed to migrate database:", err)
 	}
 
-	fmt.Println("✅ Database conectado e migrado com sucesso")
+	fmt.Println("✅ Database connected and migrated successfully")
 }
 
 func main() {
-	// Inicializar DB
 	initDB()
+	repo = repositories.NewTransactionRepository(db)
+	usecase = usecases.NewTransactionUsecase(repo)
+	handler = *handlers.NewTransactionHandler(usecase)
 
-	// Router
 	r := mux.NewRouter()
 
-	// Middleware
 	r.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "application/json")
@@ -56,15 +58,19 @@ func main() {
 		})
 	})
 
-	// Rotas básicas
-	r.HandleFunc("/health", healthHandler).Methods("GET")
-	r.HandleFunc("/", rootHandler).Methods("GET")
+	r.HandleFunc("/health", handlers.HealthHandler).Methods("GET")
 
-	fmt.Println("🚀 Statement API iniciando na porta 8080")
-	fmt.Println("📍 Endpoints disponíveis:")
+	r.HandleFunc("/events", handler.CreateEvent).Methods("POST")
+	r.HandleFunc("/statement/{userID}/{accountType}/{currencyType}/{period}", handler.GetStatement).Methods("GET")
+	r.HandleFunc("/transactions/{userID}/{accountType}", handler.GetAllTransactionsByUserIDAndAccountType).Methods("GET")
+	r.HandleFunc("/events/types", handler.GetEventTypes).Methods("GET")
+
+	fmt.Println("💰💰💰 Statement API running on port 8080")
+	fmt.Println("📍 Endpoints:")
 	fmt.Println("   GET  /health - Health check")
-	fmt.Println("   GET  / - Root endpoint")
+	fmt.Println("   POST /events - Create event")
+	fmt.Println("   GET  /statement/{userID}/{accountType}/{currencyType}/{period} - Get statement")
+	fmt.Println("   GET  /transactions/{userID}/{accountType} - Get all transactions by user ID and account type")
 
 	log.Fatal(http.ListenAndServe(":8080", r))
 }
-

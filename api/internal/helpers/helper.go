@@ -14,14 +14,14 @@ func sendJSON(w http.ResponseWriter, statusCode int, data interface{}) {
 	json.NewEncoder(w).Encode(data)
 }
 
-func sendError(w http.ResponseWriter, statusCode int, errorMsg string) {
+func SendError(w http.ResponseWriter, statusCode int, errorMsg string) {
 	sendJSON(w, statusCode, models.APIResponse{
 		Success: false,
 		Error:   errorMsg,
 	})
 }
 
-func sendSuccess(w http.ResponseWriter, data interface{}, message string) {
+func SendSuccess(w http.ResponseWriter, data interface{}, message string) {
 	sendJSON(w, http.StatusOK, models.APIResponse{
 		Success: true,
 		Data:    data,
