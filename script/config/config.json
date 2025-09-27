@@ -1,0 +1,118 @@
+{
+    "api": {
+        "base_url": "http://localhost:8080",
+        "endpoints": {
+            "events": "/events",
+            "statement": "/statement",
+            "transactions": "/transactions",
+            "event_types": "/events/types",
+            "health": "/health"
+        }
+    },
+    "test_scenarios": {
+        "brasileira": {
+            "account": "CONTA BRASILEIRA",
+            "currency": "BRL",
+            "types": [
+                "PIX",
+                "TED",
+                "CAMBIO"
+            ],
+            "amount_ranges": {
+                "PIX": {
+                    "min": 10.0,
+                    "max": 5000.0
+                },
+                "TED": {
+                    "min": 100.0,
+                    "max": 50000.0
+                },
+                "CAMBIO": {
+                    "min": 50.0,
+                    "max": 10000.0
+                }
+            }
+        },
+        "investimento": {
+            "account": "CONTA INVESTIMENTO",
+            "currency": "USD",
+            "types": [
+                "CAMBIO",
+                "ACAO"
+            ],
+            "amount_ranges": {
+                "CAMBIO": {
+                    "min": 50.0,
+                    "max": 10000.0
+                },
+                "ACAO": {
+                    "min": 100.0,
+                    "max": 10000.0
+                }
+            }
+        },
+        "banking_usd": {
+            "account": "CONTA BANKING",
+            "currency": "USD",
+            "types": [
+                "CAMBIO",
+                "TRANSACAO DE CARTAO",
+                "WIRE"
+            ],
+            "amount_ranges": {
+                "CAMBIO": {
+                    "min": 50.0,
+                    "max": 10000.0
+                },
+                "TRANSACAO DE CARTAO": {
+                    "min": 5.0,
+                    "max": 2000.0
+                },
+                "WIRE": {
+                    "min": 500.0,
+                    "max": 100000.0
+                }
+            }
+        },
+        "banking_eur": {
+            "account": "CONTA BANKING",
+            "currency": "EUR",
+            "types": [
+                "CAMBIO",
+                "TRANSACAO DE CARTAO",
+                "WIRE"
+            ],
+            "amount_ranges": {
+                "CAMBIO": {
+                    "min": 50.0,
+                    "max": 10000.0
+                },
+                "TRANSACAO DE CARTAO": {
+                    "min": 5.0,
+                    "max": 2000.0
+                },
+                "WIRE": {
+                    "min": 500.0,
+                    "max": 100000.0
+                }
+            }
+        }
+    },
+    "performance_test": {
+        "events_per_second": 500,
+        "users": 100,
+        "duration_seconds": 30,
+        "expected_latency_ms": 50
+    },
+    "validation_tests": {
+        "pix_amount": 600.0,
+        "cambio_brl_amount": 600.0,
+        "cambio_eur_amount": 100.0,
+        "test_user_id": "user-123"
+    },
+    "batch_settings": {
+        "total_transactions": 1000,
+        "batch_size": 10,
+        "delay_between_batches_ms": 100
+    }
+}
